@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const express = require('express');
 
-const { getUserByEmail, getUser } = require('../db/users');
+const { getUserByEmail, getUser, createUser } = require('../db/users');
 
 const router = express.Router();
 
@@ -40,14 +40,18 @@ router.post('/register', async (req, res, next) => {
       });
     }
 
-    const token = jwt.sign({ id: user.id, email }, process.env.JWT_SECRET, {
-      // expiresIn: '1w',
-    });
+    const token = jwt.sign(
+      { id: user.id, email, name },
+      process.env.JWT_SECRET,
+      {
+        // expiresIn: '1w',
+      }
+    );
 
     res.status(200).json({
       success: true,
       error: null,
-      message: 'thank you for signing up',
+      message: 'Thank you for signing up',
       data: {
         id: user.id,
         email,
@@ -77,19 +81,52 @@ router.post('/login', async (req, res, next) => {
         message: 'Username or password is incorrect',
       });
     }
-    const token = jwt.sign({ id: user.id, username }, process.env.JWT_SECRET, {
-      // expiresIn: '1w',
-    });
+    const token = jwt.sign(
+      { id: user.id, email, name: user.name },
+      process.env.JWT_SECRET,
+      {
+        // expiresIn: '1w',
+      }
+    );
 
     res.status(200).json({
       success: true,
-      message: `you're logged in!`,
+      message: "You're logged in!",
       error: null,
       data: {
         id: user.id,
         email,
         name: user.name,
         token,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get('/me', async (req, res, next) => {
+  const prefix = 'Bearer ';
+  const auth = req.headers.authorization;
+  if (!auth) {
+    return next({
+      name: 'AuthorizationHeaderError',
+      message: 'You must be logged in to perform this action',
+    });
+  }
+  const token = auth.slice(prefix.length);
+
+  try {
+    const { id, email, name } = jwt.verify(token, process.env.JWT_SECRET);
+
+    res.status(200).json({
+      success: true,
+      message: `Success fetch user information`,
+      error: null,
+      data: {
+        id,
+        email,
+        name,
       },
     });
   } catch (error) {
