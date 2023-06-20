@@ -29,6 +29,40 @@ async function createUser({ email, name, password }) {
   }
 }
 
+async function getUserByEmail(email) {
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT *
+        FROM users
+        WHERE email=$1
+      `,
+      [email]
+    );
+
+    const [user] = rows;
+    return user;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function getUser({ email, password }) {
+  try {
+    const user = await getUserByEmail(email);
+
+    const isValid = await bcrypt.compare(password, user.password);
+    if (!isValid) {
+      return null;
+    }
+
+    delete user.password;
+    return user;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function updateUser({ id, ...fields }) {
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 2}`)
@@ -54,5 +88,7 @@ async function updateUser({ id, ...fields }) {
 
 module.exports = {
   createUser,
+  getUserByEmail,
+  getUser,
   updateUser,
 };

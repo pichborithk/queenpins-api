@@ -1,5 +1,6 @@
 const { db } = require('../config/default');
-const { createPhoto } = require('./photos');
+const { createPhoto, attachPhotosToProducts } = require('./photos');
+const { attachReviewsToProducts } = require('./reviews');
 
 async function createProduct(fields) {
   const { name, description, price, quantity, urls } = fields;
@@ -27,6 +28,24 @@ async function createProduct(fields) {
   }
 }
 
+async function getProducts() {
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT * 
+        FROM products;
+      `
+    );
+
+    await attachPhotosToProducts(rows);
+    await attachReviewsToProducts(rows);
+    return rows;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createProduct,
+  getProducts,
 };
