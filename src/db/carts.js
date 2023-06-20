@@ -14,7 +14,7 @@ async function addProductToCart({ userId, productId, quantity }) {
     const [cart] = rows;
     return cart;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 

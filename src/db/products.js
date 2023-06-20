@@ -1,19 +1,18 @@
 const { db } = require('../config/default');
 const { createPhoto } = require('./photos');
 
-async function createPost(fields) {
+async function createProduct(fields) {
   const { name, description, price, quantity, urls } = fields;
   try {
     const { rows } = await db.query(
       `
-        INSERT INTO posts (name, description, price, quantity)
+        INSERT INTO products (name, description, price, quantity)
         VALUES ($1, $2, $3, $4)
         ON CONFLICT (name) DO NOTHING
         RETURNING *;
       `,
       [name, description, price, quantity]
     );
-
     const [product] = rows;
     if (urls.length > 0) {
       const photos = await Promise.all(
@@ -24,10 +23,10 @@ async function createPost(fields) {
 
     return product;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 
 module.exports = {
-  createPost,
+  createProduct,
 };

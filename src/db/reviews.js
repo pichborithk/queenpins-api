@@ -14,7 +14,7 @@ async function createReview({ content, productId, userId }) {
     const [review] = rows;
     return review;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 
