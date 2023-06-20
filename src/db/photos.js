@@ -18,6 +18,26 @@ async function createPhoto(productId, url) {
   }
 }
 
+async function attachPhotosToProducts(products) {
+  for (let product of products) {
+    try {
+      const { rows } = await db.query(
+        `
+          SELECT url 
+          FROM photos
+          WHERE "productId"=$1;
+        `,
+        [product.id]
+      );
+
+      product.photos = rows;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
 module.exports = {
   createPhoto,
+  attachPhotosToProducts,
 };

@@ -18,6 +18,27 @@ async function createReview({ content, productId, userId }) {
   }
 }
 
+async function attachReviewsToProducts(products) {
+  for (let product of products) {
+    try {
+      const { rows } = await db.query(
+        `
+          SELECT reviews.id, reviews.content, reviews."userId", users.email, users.name
+          FROM reviews
+          JOIN users ON reviews."userId"=users.id
+          WHERE "productId"=$1;
+        `,
+        [product.id]
+      );
+
+      product.reviews = rows;
+    } catch (error) {
+      console.error(error);
+    }
+  }
+}
+
 module.exports = {
   createReview,
+  attachReviewsToProducts,
 };

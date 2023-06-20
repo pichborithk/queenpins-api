@@ -5,11 +5,17 @@ const router = express.Router();
 const usersRouter = require('./users');
 router.use('/users', usersRouter);
 
+// ROUTER: /api/products
+const productsRouter = require('./products');
+router.use('/products', productsRouter);
+
 // Error handling
 router.use((error, req, res, next) => {
   res.status(401).json({
     error: error.name,
     message: error.message,
+    data: null,
+    success: false,
   });
 });
 
