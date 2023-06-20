@@ -9,10 +9,10 @@ async function createUser({ email, name, password }) {
   try {
     const { rows } = await db.query(
       `
-      INSERT INTO users (email, name, password)
-      VALUES ($1, $2)
-      ON CONFLICT (username) DO NOTHING
-      RETURNING *;
+        INSERT INTO users (email, name, password)
+        VALUES ($1, $2)
+        ON CONFLICT (email) DO NOTHING
+        RETURNING *;
       `,
       [email, name, hash]
     );
@@ -32,7 +32,4 @@ async function createUser({ email, name, password }) {
 
 module.exports = {
   createUser,
-  getUser,
-  getUserById,
-  getUserByUsername,
 };
