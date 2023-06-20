@@ -1,4 +1,7 @@
 const { db } = require('../config/default');
+const { user_list, product_list } = require('./dummy_data');
+const { createProduct } = require('./products');
+const { createUser, updateUser } = require('./users');
 
 async function dropTables() {
   try {
@@ -82,6 +85,23 @@ async function rebuildDatabase() {
   }
 }
 
+async function initialData() {
+  try {
+    console.log('Starting adding data...');
+
+    // await Promise.all(user_list.map(user => createUser(user)));
+    await createUser({ email: 'admin', name: 'Admin', password: '123' });
+    await updateUser({ id: 1, type: 'admin' });
+
+    await Promise.all(product_list.map(product => createProduct(product)));
+
+    console.log('Finished adding data...');
+  } catch (error) {
+    console.log('Error adding data...');
+  }
+}
+
 module.exports = {
   rebuildDatabase,
+  initialData,
 };

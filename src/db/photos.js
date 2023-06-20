@@ -14,7 +14,7 @@ async function createPhoto(productId, url) {
     const [photo] = rows;
     return photo;
   } catch (error) {
-    throw error;
+    console.error(error);
   }
 }
 

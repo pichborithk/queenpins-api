@@ -1,9 +1,9 @@
 const { db } = require('../config/default');
 
-const { rebuildDatabase } = require('./seed');
+const { rebuildDatabase, initialData } = require('./seed');
 
 db.connect()
   .then(rebuildDatabase)
-  // .then(testDB)
+  .then(initialData)
   .catch(console.error)
   .finally(() => db.end());
