@@ -1,4 +1,5 @@
 const { db } = require('../config/default');
+const { attachPhotosToProducts } = require('./photos');
 
 async function addProductToCart({ userId, productId, quantity }) {
   try {
@@ -57,8 +58,29 @@ async function updateCart(id, quantity) {
   }
 }
 
+async function getUserCart(userId) {
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT carts."productId" as id, products.* 
+        FROM carts
+        JOIN products 
+        ON carts."productId"=products.id
+        WHERE "userId"=$1
+      `,
+      [userId]
+    );
+
+    await attachPhotosToProducts(rows);
+    return rows;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   addProductToCart,
   checkProductInCart,
   updateCart,
+  getUserCart,
 };

@@ -2,7 +2,12 @@ const express = require('express');
 
 const deserializeUser = require('../middleware/deserializeUser');
 
-const { checkProductInCart, updateCart, addProductToCart } = require('../db');
+const {
+  checkProductInCart,
+  updateCart,
+  addProductToCart,
+  getUserCart,
+} = require('../db');
 
 const router = express.Router();
 
@@ -55,31 +60,27 @@ router.post('/', deserializeUser, async (req, res, next) => {
   }
 });
 
-// router.get('/me', deserializeUser, async (req, res, next) => {
-//   if (!req.user) {
-//     return next({
-//       name: 'AuthorizationHeaderError',
-//       message: 'You must be logged in to perform this action',
-//     });
-//   }
+router.get('/me', deserializeUser, async (req, res, next) => {
+  if (!req.user) {
+    return next({
+      name: 'AuthorizationHeaderError',
+      message: 'You must be logged in to perform this action',
+    });
+  }
 
-//   try {
-//     const cart = await get
+  try {
+    const userId = req.user.id;
+    const cart = await getUserCart(userId);
 
-//     res.status(200).json({
-//       success: true,
-//       message: `Success fetch user information`,
-//       error: null,
-//       data: {
-//         id,
-//         email,
-//         name,
-//         type,
-//       },
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+    res.status(200).json({
+      success: true,
+      message: `Success fetch user cart`,
+      error: null,
+      data: cart,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = router;
