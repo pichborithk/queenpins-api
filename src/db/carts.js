@@ -11,8 +11,47 @@ async function addProductToCart({ userId, productId, quantity }) {
       [userId, productId, quantity]
     );
 
-    const [cart] = rows;
-    return cart;
+    return rows[0];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function checkProductInCart({ userId, productId }) {
+  try {
+    const { rows } = await db.query(
+      `
+        SELECT * 
+        FROM carts
+        WHERE "userId"=$1
+        AND "productId"=$2;
+      `,
+      [userId, productId]
+    );
+
+    if (rows.length > 0) {
+      return rows[0];
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function updateCart(id, quantity) {
+  try {
+    const { rows } = await db.query(
+      `
+        UPDATE carts
+        SET quantity=$2
+        WHERE id=$1
+        RETURNING *;
+      `,
+      [id, quantity]
+    );
+
+    return rows[0];
   } catch (error) {
     console.error(error);
   }
@@ -20,4 +59,6 @@ async function addProductToCart({ userId, productId, quantity }) {
 
 module.exports = {
   addProductToCart,
+  checkProductInCart,
+  updateCart,
 };

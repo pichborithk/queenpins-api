@@ -9,6 +9,10 @@ router.use('/users', usersRouter);
 const productsRouter = require('./products');
 router.use('/products', productsRouter);
 
+// ROUTER: /api/carts
+const cartsRouter = require('./carts');
+router.use('/carts', cartsRouter);
+
 // Error handling
 router.use((error, req, res, next) => {
   res.status(401).json({
