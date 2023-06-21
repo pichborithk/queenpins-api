@@ -62,7 +62,8 @@ async function getUserCart(userId) {
   try {
     const { rows } = await db.query(
       `
-        SELECT carts."productId" as id, products.* 
+        SELECT carts."productId" as id, carts.quantity,
+        products.name, products.description, products.price
         FROM carts
         JOIN products 
         ON carts."productId"=products.id
