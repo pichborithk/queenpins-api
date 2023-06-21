@@ -62,6 +62,24 @@ async function getUser({ email, password }) {
   }
 }
 
+async function getUserById(userId) {
+  try {
+    const { rows } = await db.query(
+      `
+      SELECT id, email, name, type
+      FROM users
+      WHERE id=$1
+      `,
+      [userId]
+    );
+
+    const [user] = rows;
+    return user;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 async function updateUser({ id, ...fields }) {
   const setString = Object.keys(fields)
     .map((key, index) => `"${key}"=$${index + 2}`)
@@ -89,5 +107,6 @@ module.exports = {
   createUser,
   getUserByEmail,
   getUser,
+  getUserById,
   updateUser,
 };
