@@ -22,7 +22,6 @@ async function createUser({ email, name, password }) {
 
     const [user] = rows;
     delete user.password;
-    delete user.type;
     return user;
   } catch (error) {
     console.error(error);

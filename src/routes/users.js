@@ -41,7 +41,7 @@ router.post('/register', async (req, res, next) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email, name },
+      { id: user.id, email, name, type: user.type },
       process.env.JWT_SECRET,
       {
         // expiresIn: '1w',
@@ -56,6 +56,7 @@ router.post('/register', async (req, res, next) => {
         id: user.id,
         email,
         name,
+        type: user.type,
         token,
       },
     });
@@ -82,7 +83,7 @@ router.post('/login', async (req, res, next) => {
       });
     }
     const token = jwt.sign(
-      { id: user.id, email, name: user.name },
+      { id: user.id, email, name: user.name, type: user.type },
       process.env.JWT_SECRET,
       {
         // expiresIn: '1w',
@@ -97,6 +98,7 @@ router.post('/login', async (req, res, next) => {
         id: user.id,
         email,
         name: user.name,
+        type: user.type,
         token,
       },
     });
@@ -117,7 +119,7 @@ router.get('/me', async (req, res, next) => {
   const token = auth.slice(prefix.length);
 
   try {
-    const { id, email, name } = jwt.verify(token, process.env.JWT_SECRET);
+    const { id, email, name, type } = jwt.verify(token, process.env.JWT_SECRET);
 
     res.status(200).json({
       success: true,
@@ -127,6 +129,7 @@ router.get('/me', async (req, res, next) => {
         id,
         email,
         name,
+        type,
       },
     });
   } catch (error) {
