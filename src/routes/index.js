@@ -13,6 +13,10 @@ router.use('/products', productsRouter);
 const cartsRouter = require('./carts');
 router.use('/carts', cartsRouter);
 
+// ROUTER: /api/checkout
+const checkoutRouter = require('./checkout');
+router.use('/checkout', checkoutRouter);
+
 // Error handling
 router.use((error, req, res, next) => {
   res.status(401).json({
