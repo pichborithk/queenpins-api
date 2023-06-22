@@ -4,7 +4,7 @@ const deserializeUser = require('../middleware/deserializeUser');
 
 const {
   checkProductInCart,
-  updateCart,
+  updateProductInCart,
   addProductToCart,
   getUserCart,
   removeProductInCart,
@@ -27,7 +27,11 @@ router.post('/', deserializeUser, async (req, res, next) => {
     const _productInCart = await checkProductInCart({ userId, productId });
     if (_productInCart) {
       if (_productInCart.quantity !== quantity) {
-        const productInCart = await updateCart(_productInCart.id, quantity);
+        const productInCart = await updateProductInCart({
+          userId,
+          productId,
+          quantity,
+        });
         return res.status(200).json({
           success: true,
           error: null,
@@ -84,6 +88,35 @@ router.get('/me', deserializeUser, async (req, res, next) => {
   }
 });
 
+router.patch('/', deserializeUser, async (req, res, next) => {
+  if (!req.user) {
+    return next({
+      name: 'AuthorizationHeaderError',
+      message: 'You must be the owner to perform this action',
+    });
+  }
+
+  try {
+    const userId = req.user.id;
+    const { productId, quantity } = req.body;
+
+    const productInCart = await updateProductInCart({
+      userId,
+      productId,
+      quantity,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: `Success update product in cart`,
+      error: null,
+      data: productInCart,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 router.delete('/', deserializeUser, async (req, res, next) => {
   if (!req.user) {
     return next({
@@ -100,7 +133,7 @@ router.delete('/', deserializeUser, async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `Success delete product from cart`,
+      message: `Success remove product from cart`,
       error: null,
       data: _productInCart,
     });

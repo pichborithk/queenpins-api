@@ -40,16 +40,17 @@ async function checkProductInCart({ userId, productId }) {
   }
 }
 
-async function updateCart(id, quantity) {
+async function updateProductInCart({ userId, productId, quantity }) {
   try {
     const { rows } = await db.query(
       `
         UPDATE carts
-        SET quantity=$2
-        WHERE id=$1
+        SET quantity=$3
+        WHERE "userId"=$1
+        AND "productId"=$2
         RETURNING *;
       `,
-      [id, quantity]
+      [userId, productId, quantity]
     );
 
     return rows[0];
@@ -100,7 +101,7 @@ async function removeProductInCart({ userId, productId }) {
 module.exports = {
   addProductToCart,
   checkProductInCart,
-  updateCart,
+  updateProductInCart,
   getUserCart,
   removeProductInCart,
 };
