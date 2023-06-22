@@ -14,7 +14,10 @@ async function createProduct(fields) {
       `,
       [name, description, price, quantity]
     );
+
     const [product] = rows;
+    product.photos = [];
+
     if (urls.length > 0) {
       const photos = await Promise.all(
         urls.map(url => createPhoto(product.id, url))
