@@ -7,6 +7,7 @@ const {
   updateCart,
   addProductToCart,
   getUserCart,
+  removeProductInCart,
 } = require('../db');
 
 const router = express.Router();
@@ -77,6 +78,31 @@ router.get('/me', deserializeUser, async (req, res, next) => {
       message: `Success fetch user cart`,
       error: null,
       data: cart,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/', deserializeUser, async (req, res, next) => {
+  if (!req.user) {
+    return next({
+      name: 'AuthorizationHeaderError',
+      message: 'You must be the owner to perform this action',
+    });
+  }
+
+  try {
+    const userId = req.user.id;
+    const { productId } = req.body;
+
+    const _productInCart = await removeProductInCart({ userId, productId });
+
+    res.status(200).json({
+      success: true,
+      message: `Success delete product from cart`,
+      error: null,
+      data: _productInCart,
     });
   } catch (error) {
     next(error);

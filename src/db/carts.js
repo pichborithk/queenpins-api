@@ -79,9 +79,28 @@ async function getUserCart(userId) {
   }
 }
 
+async function removeProductInCart({ userId, productId }) {
+  try {
+    const { rows } = await db.query(
+      `
+        DELETE FROM carts
+        WHERE "productId"=$2
+        AND "userId"=$1
+        RETURNING *;
+      `,
+      [userId, productId]
+    );
+
+    return rows[0];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   addProductToCart,
   checkProductInCart,
   updateCart,
   getUserCart,
+  removeProductInCart,
 };
