@@ -1,5 +1,10 @@
 const express = require('express');
-const { getProducts, createProduct, updateProduct } = require('../db/products');
+const {
+  getProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} = require('../db/products');
 const deserializeUser = require('../middleware/deserializeUser');
 const { createPhoto, updatePhotosOfProduct } = require('../db');
 
@@ -85,6 +90,29 @@ router.patch('/:productId', deserializeUser, async (req, res, next) => {
       error: null,
       message: 'Success update product',
       data: product,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.delete('/:productId', deserializeUser, async (req, res, next) => {
+  if (req.user.type !== 'admin') {
+    return next({
+      name: 'AuthorizationHeaderError',
+      message: 'You must be an admin to perform this action',
+    });
+  }
+
+  try {
+    const { productId } = req.params;
+    const _product = await deleteProduct(productId);
+
+    res.status(200).json({
+      success: true,
+      error: null,
+      message: 'Success delete product',
+      data: _product,
     });
   } catch (error) {
     next(error);
