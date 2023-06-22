@@ -1,9 +1,9 @@
 const { db } = require('../config/default');
-const { createPhoto, attachPhotosToProducts } = require('./photos');
+const { attachPhotosToProducts } = require('./photos');
 const { attachReviewsToProducts } = require('./reviews');
 
 async function createProduct(fields) {
-  const { name, description, price, quantity, urls } = fields;
+  const { name, description, price, quantity } = fields;
   try {
     const { rows } = await db.query(
       `
@@ -16,14 +16,6 @@ async function createProduct(fields) {
     );
 
     const [product] = rows;
-    product.photos = [];
-
-    if (urls.length > 0) {
-      const photos = await Promise.all(
-        urls.map(url => createPhoto(product.id, url))
-      );
-      product.photos = photos;
-    }
 
     return product;
   } catch (error) {
@@ -48,7 +40,31 @@ async function getProducts() {
   }
 }
 
+async function updateProduct({ productId, ...fields }) {
+  const setString = Object.keys(fields)
+    .map((key, index) => `"${key}"=$${index + 2}`)
+    .join(', ');
+
+  try {
+    const { rows } = await db.query(
+      `
+        UPDATE products
+        SET ${setString}
+        WHERE id=$1
+        RETURNING *;
+      `,
+      [productId, ...Object.values(fields)]
+    );
+
+    const [product] = rows;
+    return product;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createProduct,
   getProducts,
+  updateProduct,
 };

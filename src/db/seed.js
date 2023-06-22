@@ -1,5 +1,7 @@
 const { db } = require('../config/default');
-const { user_list, product_list } = require('./dummy_data');
+const { faker } = require('@faker-js/faker');
+const { product_list } = require('./dummy_data');
+const { createPhoto } = require('./photos');
 const { createProduct } = require('./products');
 const { createUser, updateUser } = require('./users');
 
@@ -91,9 +93,20 @@ async function initialData() {
 
     // await Promise.all(user_list.map(user => createUser(user)));
     await createUser({ email: 'admin', name: 'Admin', password: '123' });
+    await createUser({ email: 'qrecca', name: 'qRecca', password: '123' });
     await updateUser({ id: 1, type: 'admin' });
 
-    await Promise.all(product_list.map(product => createProduct(product)));
+    const products = await Promise.all(
+      product_list.map(product => createProduct(product))
+    );
+
+    await Promise.all(
+      products.map(product => createPhoto(product.id, faker.image.url()))
+    );
+
+    await Promise.all(
+      products.map(product => createPhoto(product.id, faker.image.url()))
+    );
 
     console.log('Finished adding data...');
   } catch (error) {

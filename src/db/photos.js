@@ -37,7 +37,31 @@ async function attachPhotosToProducts(products) {
   }
 }
 
+async function updatePhotosOfProduct(productId, urls) {
+  try {
+    await db.query(
+      `
+        DELETE FROM photos
+        WHERE "productId"=$1;
+      `,
+      [productId]
+    );
+
+    if (urls.length > 0) {
+      const photos = await Promise.all(
+        urls.map(url => createPhoto(productId, url))
+      );
+      return photos;
+    }
+
+    return [];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createPhoto,
   attachPhotosToProducts,
+  updatePhotosOfProduct,
 };

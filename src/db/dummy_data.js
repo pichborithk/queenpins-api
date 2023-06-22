@@ -1,15 +1,15 @@
 const { faker } = require('@faker-js/faker');
 
-const user_list = [];
+// const user_list = [];
 
-for (let i = 1; i <= 5; i++) {
-  new_user = {
-    email: faker.internet.email(),
-    name: faker.person.firstName(),
-    password: '123',
-  };
-  user_list.push(new_user);
-}
+// for (let i = 1; i <= 5; i++) {
+//   new_user = {
+//     email: faker.internet.email(),
+//     name: faker.person.firstName(),
+//     password: '123',
+//   };
+//   user_list.push(new_user);
+// }
 
 const product_list = [];
 for (let i = 1; i <= 20; i++) {
@@ -24,6 +24,6 @@ for (let i = 1; i <= 20; i++) {
 }
 
 module.exports = {
-  user_list,
+  // user_list,
   product_list,
 };
