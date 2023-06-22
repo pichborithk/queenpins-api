@@ -1,6 +1,7 @@
 const { db } = require('../config/default');
 
 async function createPhoto(productId, url) {
+  console.log(productId, url);
   try {
     const { rows } = await db.query(
       `
@@ -39,13 +40,7 @@ async function attachPhotosToProducts(products) {
 
 async function updatePhotosOfProduct(productId, urls) {
   try {
-    await db.query(
-      `
-        DELETE FROM photos
-        WHERE "productId"=$1;
-      `,
-      [productId]
-    );
+    await deletePhotosOfProduct(productId);
 
     if (urls.length > 0) {
       const photos = await Promise.all(
@@ -60,8 +55,23 @@ async function updatePhotosOfProduct(productId, urls) {
   }
 }
 
+async function deletePhotosOfProduct(productId) {
+  try {
+    await db.query(
+      `
+        DELETE FROM photos
+        WHERE "productId"=$1;
+      `,
+      [productId]
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createPhoto,
   attachPhotosToProducts,
   updatePhotosOfProduct,
+  deletePhotosOfProduct,
 };

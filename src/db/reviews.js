@@ -38,7 +38,22 @@ async function attachReviewsToProducts(products) {
   }
 }
 
+async function deleteReviewsOfProduct(productId) {
+  try {
+    await db.query(
+      `
+        DELETE FROM reviews
+        WHERE "productId"=$1;
+      `,
+      [productId]
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 module.exports = {
   createReview,
   attachReviewsToProducts,
+  deleteReviewsOfProduct,
 };

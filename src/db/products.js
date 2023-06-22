@@ -1,6 +1,9 @@
 const { db } = require('../config/default');
-const { attachPhotosToProducts } = require('./photos');
-const { attachReviewsToProducts } = require('./reviews');
+const { attachPhotosToProducts, deletePhotosOfProduct } = require('./photos');
+const {
+  attachReviewsToProducts,
+  deleteReviewsOfProduct,
+} = require('./reviews');
 
 async function createProduct(fields) {
   const { name, description, price, quantity } = fields;
@@ -63,8 +66,28 @@ async function updateProduct({ productId, ...fields }) {
   }
 }
 
+async function deleteProduct(productId) {
+  try {
+    await deletePhotosOfProduct(productId);
+    await deleteReviewsOfProduct(productId);
+
+    const { rows } = await db.query(
+      `
+        DELETE FROM products
+        WHERE id=$1
+        RETURNING *;
+      `,
+      [productId]
+    );
+
+    const [product] = rows;
+    return product;
+  } catch (error) {}
+}
+
 module.exports = {
   createProduct,
   getProducts,
   updateProduct,
+  deleteProduct,
 };
