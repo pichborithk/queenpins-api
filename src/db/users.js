@@ -5,6 +5,7 @@ const { db } = require('../config/default');
 
 async function createUser({ email, name, password }) {
   const hash = await bcrypt.hash(password, Number(process.env.SALT));
+
   try {
     const { rows } = await db.query(
       `
@@ -20,7 +21,7 @@ async function createUser({ email, name, password }) {
       return null;
     }
 
-    const [user] = rows;
+    const user = rows[0];
     delete user.password;
     return user;
   } catch (error) {
@@ -32,15 +33,18 @@ async function getUserByEmail(email) {
   try {
     const { rows } = await db.query(
       `
-        SELECT *
+        SELECT email
         FROM users
         WHERE email=$1
       `,
       [email]
     );
 
-    const [user] = rows;
-    return user;
+    if (rows.length > 0) {
+      return rows[0];
+    }
+
+    return null;
   } catch (error) {
     console.error(error);
   }
@@ -48,7 +52,16 @@ async function getUserByEmail(email) {
 
 async function getUser({ email, password }) {
   try {
-    const user = await getUserByEmail(email);
+    const { rows } = await db.query(
+      `
+        SELECT *
+        FROM users
+        WHERE email=$1
+      `,
+      [email]
+    );
+
+    const user = rows[0];
 
     const isValid = await bcrypt.compare(password, user.password);
     if (!isValid) {
@@ -73,8 +86,7 @@ async function getUserById(userId) {
       [userId]
     );
 
-    const [user] = rows;
-    return user;
+    return rows[0];
   } catch (error) {
     console.error(error);
   }
@@ -96,8 +108,7 @@ async function updateUser({ id, ...fields }) {
       [id, ...Object.values(fields)]
     );
 
-    const [user] = rows;
-    return user;
+    return rows[0];
   } catch (error) {
     console.error(error);
   }

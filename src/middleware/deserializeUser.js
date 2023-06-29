@@ -10,6 +10,7 @@ async function deserializeUser(req, res, next) {
     next();
   } else if (auth.startsWith(prefix)) {
     const token = auth.slice(prefix.length);
+
     try {
       const { id, email } = jwt.verify(token, process.env.JWT_SECRET);
 

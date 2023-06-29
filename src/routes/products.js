@@ -1,12 +1,12 @@
 const express = require('express');
-const {
-  getProducts,
-  createProduct,
-  updateProduct,
-  deleteProduct,
-} = require('../db/products');
 const deserializeUser = require('../middleware/deserializeUser');
-const { createPhoto, updatePhotosOfProduct } = require('../db');
+const {
+  createProduct,
+  getProducts,
+  updateProduct,
+  updatePicturesByProductId,
+  deleteProduct,
+} = require('../db');
 
 const router = express.Router();
 
@@ -36,21 +36,22 @@ router.post('/', deserializeUser, async (req, res, next) => {
   }
 
   try {
-    const { name, description, price, quantity, urls } = req.body;
+    const { title, description, price, quantity, urls } = req.body;
     const product = await createProduct({
-      name,
+      title,
       description,
       price,
       quantity,
+      type,
     });
 
-    product.photos = [];
+    product.pictures = [];
 
     if (urls.length > 0) {
-      const photos = await Promise.all(
+      const pictures = await Promise.all(
         urls.map(url => createPhoto(product.id, url))
       );
-      product.photos = photos;
+      product.pictures = pictures;
     }
 
     res.status(200).json({
@@ -74,16 +75,17 @@ router.patch('/:productId', deserializeUser, async (req, res, next) => {
 
   try {
     const { productId } = req.params;
-    const { name, description, price, quantity, urls } = req.body;
+    const { title, description, price, quantity, type, urls } = req.body;
     const product = await updateProduct({
       productId,
-      name,
+      title,
       description,
       price,
       quantity,
+      type,
     });
 
-    product.photos = await updatePhotosOfProduct(productId, urls);
+    product.pictures = await updatePicturesByProductId(productId, urls);
 
     res.status(200).json({
       success: true,

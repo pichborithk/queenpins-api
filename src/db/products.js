@@ -1,26 +1,27 @@
 const { db } = require('../config/default');
-const { attachPhotosToProducts, deletePhotosOfProduct } = require('./photos');
 const {
-  attachReviewsToProducts,
-  deleteReviewsOfProduct,
+  getPicturesByProductId,
+  deletePicturesByProductId,
+} = require('./pictures');
+const {
+  getReviewsByProductId,
+  deleteReviewsByProductId,
 } = require('./reviews');
 
 async function createProduct(fields) {
-  const { name, description, price, quantity } = fields;
+  const { title, description, price, quantity, type } = fields;
   try {
     const { rows } = await db.query(
       `
-        INSERT INTO products (name, description, price, quantity)
-        VALUES ($1, $2, $3, $4)
-        ON CONFLICT (name) DO NOTHING
+        INSERT INTO products (title, description, price, quantity, type)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (title) DO NOTHING
         RETURNING *;
       `,
-      [name, description, price, quantity]
+      [title, description, price, quantity, type]
     );
 
-    const [product] = rows;
-
-    return product;
+    return rows[0];
   } catch (error) {
     console.error(error);
   }
@@ -35,9 +36,15 @@ async function getProducts() {
       `
     );
 
-    await attachPhotosToProducts(rows);
-    await attachReviewsToProducts(rows);
-    return rows;
+    const products = await Promise.all(
+      rows.map(async product => {
+        product.pictures = await getPicturesByProductId(product.id);
+        product.reviews = await getReviewsByProductId(product.id);
+        return product;
+      })
+    );
+
+    return products;
   } catch (error) {
     console.error(error);
   }
@@ -59,8 +66,7 @@ async function updateProduct({ productId, ...fields }) {
       [productId, ...Object.values(fields)]
     );
 
-    const [product] = rows;
-    return product;
+    return rows[0];
   } catch (error) {
     console.error(error);
   }
@@ -68,8 +74,8 @@ async function updateProduct({ productId, ...fields }) {
 
 async function deleteProduct(productId) {
   try {
-    await deletePhotosOfProduct(productId);
-    await deleteReviewsOfProduct(productId);
+    await deletePicturesByProductId(productId);
+    await deleteReviewsByProductId(productId);
 
     const { rows } = await db.query(
       `
@@ -80,8 +86,7 @@ async function deleteProduct(productId) {
       [productId]
     );
 
-    const [product] = rows;
-    return product;
+    return rows[0];
   } catch (error) {}
 }
 
