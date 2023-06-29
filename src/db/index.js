@@ -1,7 +1,7 @@
 module.exports = {
   ...require('./users'),
   ...require('./products'),
-  ...require('./photos'),
+  ...require('./pictures'),
   ...require('./reviews'),
   ...require('./carts'),
 };

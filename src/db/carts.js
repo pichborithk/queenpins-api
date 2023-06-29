@@ -1,5 +1,7 @@
 const { db } = require('../config/default');
-const { attachPhotosToProducts } = require('./photos');
+const { getPicturesByProductId } = require('./pictures');
+const { getReviewsByProductId } = require('./reviews');
+// const { attachPhotosToProducts } = require('./photos');
 
 async function addProductToCart({ userId, productId, quantity }) {
   try {
@@ -64,7 +66,7 @@ async function getUserCart(userId) {
     const { rows } = await db.query(
       `
         SELECT carts."productId" as id, carts.quantity,
-        products.name, products.description, products.price
+        products.title, products.description, products.price
         FROM carts
         JOIN products 
         ON carts."productId"=products.id
@@ -73,8 +75,16 @@ async function getUserCart(userId) {
       [userId]
     );
 
-    await attachPhotosToProducts(rows);
-    return rows;
+    const carts = await Promise.all(
+      rows.map(async product => {
+        product.pictures = await getPicturesByProductId(product.id);
+        product.reviews = await getReviewsByProductId(product.id);
+        return product;
+      })
+    );
+    console.log(carts);
+    // await attachPhotosToProducts(rows);
+    return carts;
   } catch (error) {
     console.error(error);
   }
