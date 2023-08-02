@@ -16,18 +16,21 @@ router.post('/', deserializeUser, async (req, res, next) => {
   try {
     const { cart } = req.body;
     const storeItems = cart.map(product => {
+      console.log(product);
       return {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: product.name,
+            name: product.title,
           },
-          unit_amount: Math.round(parseInt(product.price) * 100),
+          unit_amount: Math.round(
+            parseInt(product.price.replace('$', '')) * 100
+          ),
         },
         quantity: product.quantity,
       };
     });
-
+    console.log(storeItems);
     const session = await stripe.checkout.sessions.create({
       // shipping_address_collection: { allowed_countries: ['US'] },
       payment_method_types: ['card'],
@@ -37,6 +40,7 @@ router.post('/', deserializeUser, async (req, res, next) => {
       cancel_url: `${process.env.CLIENT_URL}?canceled=true`,
     });
 
+    console.log(session);
     res.status(200).json({
       success: true,
       error: null,
