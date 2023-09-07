@@ -9,6 +9,10 @@ router.use('/users', usersRouter);
 const productsRouter = require('./products');
 router.use('/products', productsRouter);
 
+// ROUTER: /api/reviews
+const reviewsRouter = require('./reviews');
+router.use('/reviews', reviewsRouter);
+
 // ROUTER: /api/carts
 const cartsRouter = require('./carts');
 router.use('/carts', cartsRouter);
