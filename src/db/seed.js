@@ -1,4 +1,4 @@
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
 const { faker } = require('@faker-js/faker');
 const { product_list, user_list } = require('./dummy_data');
 const { createPicture } = require('./pictures');
@@ -10,8 +10,8 @@ async function dropTables() {
   try {
     console.log('Dropping All Tables...');
 
+    const db = await pool.connect();
     await db.query(`
-
 
     DROP TABLE IF EXISTS carts;
     DROP TABLE IF EXISTS pictures;
@@ -21,6 +21,7 @@ async function dropTables() {
     DROP TYPE IF EXISTS user_type;
 
     `);
+    db.release(true);
 
     console.log('Finished dropping tables!');
   } catch (error) {
@@ -32,6 +33,7 @@ async function buildTables() {
   try {
     console.log('Starting to construct tables...');
 
+    const db = await pool.connect();
     await db.query(`
       CREATE TYPE user_type AS ENUM ('user', 'admin');
 
@@ -74,6 +76,7 @@ async function buildTables() {
         UNIQUE ("productId", "userId")
       );
     `);
+    db.release(true);
 
     console.log('Finished constructing tables!');
   } catch (error) {

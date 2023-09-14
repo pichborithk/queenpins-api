@@ -1,7 +1,8 @@
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
 
 async function createPicture(productId, url) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         INSERT INTO pictures (url, "productId")
@@ -10,6 +11,7 @@ async function createPicture(productId, url) {
       `,
       [url, productId]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -19,6 +21,7 @@ async function createPicture(productId, url) {
 
 async function getPicturesByProductId(productId) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT url 
@@ -27,6 +30,8 @@ async function getPicturesByProductId(productId) {
       `,
       [productId]
     );
+    db.release(true);
+
     if (rows <= 0) {
       return [];
     }
@@ -75,6 +80,7 @@ async function updatePicturesByProductId(productId, urls) {
 
 async function deletePicturesByProductId(productId) {
   try {
+    const db = await pool.connect();
     await db.query(
       `
         DELETE FROM pictures
@@ -82,6 +88,7 @@ async function deletePicturesByProductId(productId) {
       `,
       [productId]
     );
+    db.release(true);
   } catch (error) {
     console.error(error);
   }

@@ -1,10 +1,11 @@
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
 const { getPicturesByProductId } = require('./pictures');
 const { getReviewsByProductId } = require('./reviews');
 // const { attachPhotosToProducts } = require('./photos');
 
 async function addProductToCart({ userId, productId, quantity }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         INSERT INTO carts("userId", "productId", quantity)
@@ -13,6 +14,7 @@ async function addProductToCart({ userId, productId, quantity }) {
       `,
       [userId, productId, quantity]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -22,6 +24,7 @@ async function addProductToCart({ userId, productId, quantity }) {
 
 async function checkProductInCart({ userId, productId }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT * 
@@ -31,6 +34,7 @@ async function checkProductInCart({ userId, productId }) {
       `,
       [userId, productId]
     );
+    db.release(true);
 
     if (rows.length > 0) {
       return rows[0];
@@ -44,6 +48,7 @@ async function checkProductInCart({ userId, productId }) {
 
 async function updateProductInCart({ userId, productId, quantity }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         UPDATE carts
@@ -54,6 +59,7 @@ async function updateProductInCart({ userId, productId, quantity }) {
       `,
       [userId, productId, quantity]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -63,6 +69,7 @@ async function updateProductInCart({ userId, productId, quantity }) {
 
 async function getUserCart(userId) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT carts."productId" as id, carts.quantity,
@@ -74,6 +81,7 @@ async function getUserCart(userId) {
       `,
       [userId]
     );
+    db.release(true);
 
     const carts = await Promise.all(
       rows.map(async product => {
@@ -92,6 +100,7 @@ async function getUserCart(userId) {
 
 async function removeProductInCart({ userId, productId }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         DELETE FROM carts
@@ -101,6 +110,7 @@ async function removeProductInCart({ userId, productId }) {
       `,
       [userId, productId]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
