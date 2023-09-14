@@ -1,3 +1,9 @@
+.git
+Dockerfile
+.DS_Store
+.gitignore
+README.md
+env.*
 node_modules
 
 .git
@@ -8,3 +14,4 @@ npm-debug.log
 .coverage
 .coverage.*
 .aws
+.env
