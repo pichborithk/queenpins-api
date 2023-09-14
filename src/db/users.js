@@ -1,13 +1,15 @@
 require('dotenv').config();
 const bcrypt = require('bcrypt');
 
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
 
 async function createUser({ email, name, password }) {
   const hash = await bcrypt.hash(password, Number(process.env.SALT));
 
   try {
-    const { rows } = await db.query(
+    // const db = await pool.connect();
+    // const { rows } = await db.query(
+    const { rows } = await pool.query(
       `
         INSERT INTO users (email, name, password)
         VALUES ($1, $2, $3)
@@ -16,6 +18,7 @@ async function createUser({ email, name, password }) {
       `,
       [email, name, hash]
     );
+    // db.release(true);
 
     if (!rows || rows.length <= 0) {
       return null;
@@ -31,6 +34,7 @@ async function createUser({ email, name, password }) {
 
 async function getUserByEmail(email) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT email
@@ -39,6 +43,7 @@ async function getUserByEmail(email) {
       `,
       [email]
     );
+    db.release(true);
 
     if (rows.length > 0) {
       return rows[0];
@@ -52,6 +57,7 @@ async function getUserByEmail(email) {
 
 async function getUser({ email, password }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT *
@@ -60,6 +66,7 @@ async function getUser({ email, password }) {
       `,
       [email]
     );
+    db.release(true);
 
     const user = rows[0];
 
@@ -77,6 +84,7 @@ async function getUser({ email, password }) {
 
 async function getUserById(userId) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
       SELECT id, email, name, type
@@ -85,6 +93,7 @@ async function getUserById(userId) {
       `,
       [userId]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -98,6 +107,7 @@ async function updateUser({ id, ...fields }) {
     .join(', ');
 
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         UPDATE users
@@ -107,6 +117,7 @@ async function updateUser({ id, ...fields }) {
       `,
       [id, ...Object.values(fields)]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {

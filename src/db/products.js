@@ -1,4 +1,5 @@
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
+
 const {
   getPicturesByProductId,
   deletePicturesByProductId,
@@ -11,6 +12,7 @@ const {
 async function createProduct(fields) {
   const { title, description, price, quantity, type } = fields;
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         INSERT INTO products (title, description, price, quantity, type)
@@ -20,6 +22,7 @@ async function createProduct(fields) {
       `,
       [title, description, price, quantity, type]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -29,12 +32,14 @@ async function createProduct(fields) {
 
 async function getProducts() {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT * 
         FROM products;
       `
     );
+    db.release(true);
 
     const products = await Promise.all(
       rows.map(async product => {
@@ -56,6 +61,7 @@ async function updateProduct({ productId, ...fields }) {
     .join(', ');
 
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         UPDATE products
@@ -65,6 +71,7 @@ async function updateProduct({ productId, ...fields }) {
       `,
       [productId, ...Object.values(fields)]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -77,6 +84,7 @@ async function deleteProduct(productId) {
     await deletePicturesByProductId(productId);
     await deleteReviewsByProductId(productId);
 
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         DELETE FROM products
@@ -85,6 +93,7 @@ async function deleteProduct(productId) {
       `,
       [productId]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {}

@@ -1,7 +1,8 @@
-const { db } = require('../config/default');
+const { pool } = require('../config/default');
 
 async function createReview({ content, rate, productId, userId }) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         INSERT INTO reviews (content ,rate ,"productId", "userId")
@@ -10,6 +11,7 @@ async function createReview({ content, rate, productId, userId }) {
       `,
       [content, rate, productId, userId]
     );
+    db.release(true);
 
     return rows[0];
   } catch (error) {
@@ -19,6 +21,7 @@ async function createReview({ content, rate, productId, userId }) {
 
 async function getReviewsByProductId(productId) {
   try {
+    const db = await pool.connect();
     const { rows } = await db.query(
       `
         SELECT reviews.id, reviews.content, reviews.rate ,reviews."userId", users.name 
@@ -28,6 +31,8 @@ async function getReviewsByProductId(productId) {
       `,
       [productId]
     );
+    db.release(true);
+
     if (rows <= 0) {
       return [];
     }
@@ -60,6 +65,7 @@ async function getReviewsByProductId(productId) {
 
 async function deleteReviewsByProductId(productId) {
   try {
+    const db = await pool.connect();
     await db.query(
       `
         DELETE FROM reviews
@@ -67,6 +73,7 @@ async function deleteReviewsByProductId(productId) {
       `,
       [productId]
     );
+    db.release(true);
   } catch (error) {
     console.error(error);
   }
