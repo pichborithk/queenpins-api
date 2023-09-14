@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
+// const { Client } = require('pg');
 
-const { db, config } = require('./config/default');
+// const { db, config } = require('./config/default');
+const { pool } = require('./config/default');
 const logging = require('./lib/Logging');
 
 const apiRouter = require('./routes');
 
 const server = express();
+
+const SERVER_PORT = Number(process.env.SERVER_PORT) || 1337;
 
 const StartServer = () => {
   server.use((req, res, next) => {
@@ -64,17 +68,45 @@ const StartServer = () => {
     });
   });
 
-  server.listen(config.server.port, () =>
-    logging.info(`Server is running on port ${config.server.port}`)
+  // server.listen(config.server.port, () =>
+  //   logging.info(`Server is running on port ${config.server.port}`)
+  // );
+  server.listen(SERVER_PORT, () =>
+    logging.info(`Server is running on port ${SERVER_PORT}`)
   );
 };
 
-db.connect()
-  .then(() => {
-    logging.info('Connected to Postgres');
-    StartServer();
-  })
-  .catch(error => {
-    logging.error('Unable to connect: ');
-    logging.error(error);
-  });
+// function connect() {
+//   const db = new Client(process.env.DATABASE_URL);
+
+//   db.connect()
+//     .then(() => {
+//       logging.info('Connected to Postgres');
+//       StartServer();
+//     })
+//     .catch(error => {
+//       logging.error('Unable to connect: ');
+//       logging.error(error);
+//       setTimeout(() => {
+//         connect();
+//       }, 5000);
+//     });
+// }
+
+function connect() {
+  pool
+    .connect()
+    .then(() => {
+      logging.info('Connected to Postgres');
+      StartServer();
+    })
+    .catch(error => {
+      logging.error('Unable to connect: ');
+      logging.error(error);
+      setTimeout(() => {
+        connect();
+      }, 5000);
+    });
+}
+
+connect();
