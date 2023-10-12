@@ -17,15 +17,16 @@ require('dotenv').config();
 const { Pool } = require('pg');
 
 const pool = new Pool({
-  host: process.env.DATABASE_HOST,
-  user: process.env.DATABASE_USER,
-  password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE_DB,
-  port: 5432,
+  // host: process.env.DATABASE_HOST,
+  // user: process.env.DATABASE_USER,
+  // password: process.env.DATABASE_PASSWORD,
+  // database: process.env.DATABASE_DB,
+  // port: 5432,
   max: 20,
   connectionTimeoutMillis: 10000,
   idleTimeoutMillis: 20000,
   allowExitOnIdle: false,
+  connectionString: process.env.DATABASE_URL,
 });
 
 module.exports = {
