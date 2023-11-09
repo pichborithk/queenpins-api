@@ -5,7 +5,7 @@ const axios = require('axios');
 
 const URL = process.env.API_URL + '/ping';
 
-const job = new cron.CronJob('*/1 * * * *', () => {
+const job = new cron.CronJob('*/10 * * * *', () => {
   console.log('Make request to', URL);
   console.log('Restarting server');
 
