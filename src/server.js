@@ -5,6 +5,7 @@ const express = require('express');
 // const { db, config } = require('./config/default');
 const { pool } = require('./config/default');
 const logging = require('./lib/Logging');
+const { job } = require('./cron.js');
 
 const apiRouter = require('./routes');
 
@@ -67,6 +68,8 @@ const StartServer = () => {
       message: error.message,
     });
   });
+
+  job.start();
 
   // server.listen(config.server.port, () =>
   //   logging.info(`Server is running on port ${config.server.port}`)
